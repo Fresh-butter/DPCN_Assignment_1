@@ -1,1 +1,11 @@
 pandas
+numpy
+networkx
+scipy
+scikit-learn
+python-louvain
+matplotlib
+jupyter
+nbformat
+nbclient
+ipykernel

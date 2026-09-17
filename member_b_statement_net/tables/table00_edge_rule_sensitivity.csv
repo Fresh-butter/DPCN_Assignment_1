@@ -1,0 +1,3 @@
+rule,n_nodes,n_edges,n_positive,n_negative,density,n_isolates
+permutation+FDR (primary),60,402,391,11,0.2271186440677966,2
+fixed |r|>0.3 (sensitivity),60,316,312,4,0.17853107344632768,4

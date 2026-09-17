@@ -1,0 +1,2 @@
+n_edges,n_positive,n_negative,n_closed_triads,n_unbalanced_triads,frustration_index,frustration_fraction,null_frustration_mean,null_frustration_sd,z_score,nmi_block_vs_community
+402,391,11,1298,0,2,0.004975124378109453,10.978,0.15973728431396347,-56.20478674442561,0.27739118661975565
