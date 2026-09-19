@@ -1,0 +1,4 @@
+metric,observed,null_mean,null_sd
+average_local_clustering,0.4946151572877853,0.2177010027443647,0.009051125190546926
+avg_shortest_path_giant_component,2.062745098039216,1.7975070028011204,0.012343876024470967
+giant_component_fraction,1.0,1.0,0.0
