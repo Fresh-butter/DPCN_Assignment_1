@@ -15,32 +15,22 @@
 \renewcommand{\bottomfraction}{0.75}
 \renewcommand{\textfraction}{0.07}
 \renewcommand{\floatpagefraction}{0.80}
-\setlength{\parskip}{0.35em}
+\setlength{\parskip}{0.45em}
 \setlength{\parindent}{0pt}
+\renewcommand{\arraystretch}{1.2}
 
 \newcommand{\net}[1]{\textsc{#1}}
 
-\title{\vspace{-1.4cm}\textbf{Opinion Network Formation:\\Three Readings of One Class Survey}}
-\author{Team: \textbf{A Shortest Path to an A Grade}\\[0.25em]
-Vishal \quad$\cdot$\quad Harith \quad$\cdot$\quad Navneet}
+\title{\vspace{-1.5cm}\textbf{Opinion Network Formation:\\Three Readings of One Class Survey}}
+\author{\Large \textbf{Team: A Shortest Path to an A Grade} \\[0.2em]
+\large \textbf{Authors:} Navneet, Vishal, Harith}
 \date{Dynamical Processes in Complex Networks --- Assignment 1\\[0.2em]
-20 September 2026}
+20 September 2026\\[0.5em]
+\small \textbf{Code Repository:} \url{https://github.com/Fresh-butter/DPCN_Assignment_1}}
 
 \begin{document}
 \maketitle
-\vspace{-0.9em}
-
-\begin{center}
-\fbox{\begin{minipage}{0.93\textwidth}
-\small
-\textbf{Code:} \url{https://github.com/Fresh-butter/DPCN_Assignment_1} \\
-\textit{Repository layout:} \texttt{common/} (shared data contract and palette),
-\texttt{member\_a\_agreement\_net/}, \texttt{member\_b\_statement\_net/},
-\texttt{member\_c\_bipartite\_net/}, \texttt{cross\_analysis/}, \texttt{report/}.
-\end{minipage}}
-\end{center}
-
-\vspace{0.4em}
+\vspace{-1.5em}
 
 \section*{The problem this survey poses}
 
@@ -169,7 +159,7 @@ scratch produces identical outputs.
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.92\textwidth]{../member_b_statement_net/figures/fig01_construction.png}
+\includegraphics[width=1.0\textwidth]{../member_b_statement_net/figures/fig01_construction.png}
 \caption{The problem and one response to it. \textit{Left:} the response distribution ---
 80\% of answers given are Agree or Strongly Agree, which is why every construction in this
 report operates on $z$-scores rather than raw responses. \textit{Right:} the observed
@@ -200,7 +190,7 @@ small-world.
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.52\textwidth]{../member_a_agreement_net/figures/fig04_network_communities.png}
+\includegraphics[width=0.7\textwidth]{../member_a_agreement_net/figures/fig04_network_communities.png}
 \caption{The agreement network over 87 students, coloured by Louvain community. The two
 main blocs are clearly visible and far from random
 ($Q = 0.432$ vs a configuration null of $0.178 \pm 0.007$).}
@@ -219,7 +209,7 @@ V $0.986$, S $0.835$, E $0.536$, T $0.434$.
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.92\textwidth]{../member_a_agreement_net/figures/fig07_community_profile.png}
+\includegraphics[width=1.0\textwidth]{../member_a_agreement_net/figures/fig07_community_profile.png}
 \caption{What separates the two blocs. \textit{Left:} the twenty most discriminating
 statements --- eighteen of them are Environment or Society/Ethics. \textit{Right:} the same
 result aggregated by block. The class divides over how strongly to hold environmental and
@@ -255,7 +245,7 @@ don't correlate with anything in the survey, including the rest of Technology.
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.95\textwidth]{../member_b_statement_net/figures/fig02_signed_network.png}
+\includegraphics[width=1.0\textwidth]{../member_b_statement_net/figures/fig02_signed_network.png}
 \caption{The signed statement network. \textit{Left:} Society and Environment statements
 form a dense core while Technology sits on the rim, with T08 and T09 fully isolated.
 \textit{Right:} all eleven negative edges drawn alone; E03 carries eight of them.}
@@ -296,7 +286,7 @@ NODF is $41.00 \pm 0.26$: the observed value clears it by just $+0.79$ points ou
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.62\textwidth]{../member_c_bipartite_net/figures/fig03_nestedness_matrix.png}
+\includegraphics[width=0.8\textwidth]{../member_c_bipartite_net/figures/fig03_nestedness_matrix.png}
 \caption{The bipartite incidence matrix, students by statements, sorted by degree. The
 nested triangular shape is real but almost entirely explained by the degree sequence:
 only $+0.8$ NODF points out of $100$ survive a null that fixes both degree
@@ -323,7 +313,7 @@ third angle.
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.92\textwidth]{../member_c_bipartite_net/figures/fig04_mfpt_structure.png}
+\includegraphics[width=1.0\textwidth]{../member_c_bipartite_net/figures/fig04_mfpt_structure.png}
 \caption{Mean first-passage time on the bipartite deviation network. \textit{Left:} raw
 MFPT spans 27-fold, but tracks deviation degree at $\rho = -0.971$. \textit{Right:}
 dividing out node strength leaves only 11\% residual spread.}
@@ -348,7 +338,7 @@ make the graph sparser and it becomes the dominant effect.
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.92\textwidth]{../member_a_agreement_net/figures/fig08_si_seeding_density.png}
+\includegraphics[width=1.0\textwidth]{../member_a_agreement_net/figures/fig08_si_seeding_density.png}
 \caption{SI spreading from three seeds, 30 trials per condition, shading $\pm 1$ SD.
 \textit{Left:} on the dense threshold graph the seeding strategy makes no difference.
 \textit{Right:} on the sparse mutual-$k$NN graph random seeding reaches roughly twice as
@@ -421,7 +411,7 @@ differently but with no particular pattern.
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.92\textwidth]{../cross_analysis/figures/fig01_item_level_crosscheck.png}
+\includegraphics[width=1.0\textwidth]{../cross_analysis/figures/fig01_item_level_crosscheck.png}
 \caption{\textit{Left:} two independent constructions rank the same 58 statements almost
 identically. \textit{Right:} both run opposite to how much individual students deviate on
 a statement. Note that leverage saturates near $0.96$, so the positive relationship is
@@ -466,41 +456,24 @@ students should be taken with that in mind; claims about blocs and null comparis
 across the sweeps. Also, leverage saturates near $0.96$, so the $\rho = +0.784$ correlation
 in Figure 8 is driven disproportionately by the lower tail.
 
-\section{Individual contribution}
+\section{Individual Contribution}
 
-Each member owns one network end to end: its \texttt{src/}
-modules, notebook, figures, tables, GEXF exports and \texttt{FINDINGS.md}. No member's
-code imports another's.
+The project was divided into three main network analyses, with each team member taking the lead on one. All data cleaning and shared utilities were developed collaboratively in the \texttt{common/} module to ensure consistency across our analyses.
 
-\begin{table}[h]
+\begin{table}[!htbp]
 \centering
-\footnotesize
-\begin{tabular}{@{}lp{12.9cm}@{}}
+\small
+\begin{tabular}{@{}lp{12.5cm}@{}}
 \toprule
 \textbf{Member} & \textbf{Contribution} \\
 \midrule
-\textbf{Vishal} &
-\texttt{member\_a\_agreement\_net/} --- agreement network (87 students). Threshold and $k$NN
-edge rules, percolation sweep, structural metrics (degree, clustering, paths), Louvain
-communities with configuration-model and ER nulls, community profiling, centrality
-analysis, and both dynamical processes (bounded-confidence and SI seeding). \\
+\textbf{Vishal} & \textbf{Agreement Network (\texttt{member\_a}):} Constructed the student agreement network. Conducted community detection, structural analysis, centrality profiling, and simulated dynamical processes. \\
 \addlinespace
-\textbf{Harith} &
-\texttt{member\_b\_statement\_net/} --- signed statement network (60 statements).
-Permutation-null construction with FDR, fixed-threshold comparison, degree/strength
-distributions, Louvain + NMI against T/E/S/V, hub and isolate identification,
-balance analysis (triad census, frustration index, sign-shuffled null), Altafini
-dynamics and leverage ranking. \\
+\textbf{Harith} & \textbf{Statement Network (\texttt{member\_b}):} Built the signed statement network. Analysed network balance, identified hubs and isolates, compared community structures, and implemented Altafini dynamics. \\
 \addlinespace
-\textbf{Navneet} &
-\texttt{member\_c\_bipartite\_net/} --- bipartite deviation network (87 students + 60 items).
-Deviation-based construction, cutoff sensitivity, degree distributions, NODF nestedness
-with curveball null, one-mode projections with modularity null, exact MFPT analysis,
-relative-MFPT correction, and flashpoint-removal robustness test. \\
+\textbf{Navneet} & \textbf{Bipartite Network (\texttt{member\_c}):} Developed the bipartite deviation network. Analysed nestedness, extracted one-mode projections, and evaluated structural robustness using Mean First Passage Time (MFPT). \\
 \addlinespace
-\textbf{Joint} &
-\texttt{common/} (data contract and shared palette), \texttt{cross\_analysis/}
-(Sections 4.1--4.2), and this report. \\
+\textbf{Joint} & \textbf{Shared \& Cross-Analysis:} Developed \texttt{common/} utilities, conducted cross-network comparisons, and co-wrote the final report. \\
 \bottomrule
 \end{tabular}
 \end{table}
