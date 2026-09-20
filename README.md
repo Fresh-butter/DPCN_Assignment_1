@@ -1,12 +1,12 @@
-# DPCN Assignment 1 — Opinion Network Formation
+# DPCN Assignment 1: Opinion Network Formation
 
 **Team: A Shortest Path to an A Grade**
 
 One survey of 60 Likert statements answered by a class; three different ways of
 turning it into a network; one report that triangulates across all three.
 
-The survey has 4 topic blocks of 15 statements each — **T**echnology,
-**E**ducation, **S**ociety/Ethics, en**V**ironment — answered on a
+The survey has 4 topic blocks of 15 statements each - **T**echnology,
+**E**ducation, **S**ociety/Ethics, en**V**ironment; answered on a
 Strongly Disagree → Strongly Agree scale.
 
 ## The three networks
@@ -18,7 +18,7 @@ Strongly Disagree → Strongly Agree scale.
 | `member_c_bipartite_net/` | Navneet | Bipartite deviation | 87 students + 60 statements | student–statement edge when \|z\| > 1.0 | Who deviates from consensus, and on what? |
 
 A and C share the same 87 student nodes; B and C share the same 60 item nodes.
-That overlap is deliberate — the strongest results in the report are
+That overlap is deliberate. The strongest results in the report are
 cross-network comparisons, and they are only valid because all three are built
 from one shared data contract.
 
@@ -75,7 +75,7 @@ cross-network comparisons written up in `FINDINGS_CROSS.md`.
 - **`SEED = 42`, and always iterate over `sorted(...)`.** The real test is that
   two consecutive full re-runs produce identical CSVs; a seed alone does not
   guarantee that.
-- **Every structural result is measured against a null** — modularity against a
+- **Every structural result is measured against a null**: Modularity against a
   degree-preserving configuration model, clustering against Erdős–Rényi,
   frustration against a sign-shuffled null. A bare value proves nothing.
 - **One palette, in `common/viz.py`.** Blocks are always T blue `#2a78d6`,
@@ -85,7 +85,7 @@ See `development_guidelines.md` for the full agreement.
 
 ## Individual contribution
 
-Grading is individual, so each member owns one network end to end — its `src/`
+Grading is individual, so each member owns one network end to end. Its `src/`
 modules, its notebook, its figures, tables and GEXF exports, and its
 `FINDINGS.md`:
 

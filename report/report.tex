@@ -24,7 +24,7 @@
 \title{\vspace{-1.5cm}\textbf{Opinion Network Formation:\\Three Readings of One Class Survey}}
 \author{\Large \textbf{Team: A Shortest Path to an A Grade} \\[0.2em]
 \large \textbf{Authors:} Navneet, Vishal, Harith}
-\date{Dynamical Processes in Complex Networks --- Assignment 1\\[0.2em]
+\date{Dynamical Processes in Complex Networks - Assignment 1\\[0.2em]
 20 September 2026\\[0.5em]
 \small \textbf{Code Repository:} \url{https://github.com/Fresh-butter/DPCN_Assignment_1}}
 
@@ -41,7 +41,7 @@ and compute cosine similarity between students, everyone looks nearly identical
 ($\sim$0.96 for every pair), and you end up with a near-complete graph that tells you
 nothing.
 
-So the real question isn't what people answered --- it's how far each answer sits
+So the real question isn't what people answered. It's how far each answer sits
 from what everyone else said. Once we centre each item on its mean, genuine structure
 shows up, and there turns out to be quite a lot of it.
 
@@ -54,7 +54,7 @@ they disagree, the disagreement itself usually turns out to be interesting.
 \section{Dataset documentation}
 
 The raw file is $96 \times 61$: one respondent identifier and 60 Likert statements,
-split into four blocks of fifteen --- \textbf{T}echnology, \textbf{E}ducation,
+split into four blocks of fifteen, i.e., \textbf{T}echnology, \textbf{E}ducation,
 \textbf{S}ociety/Ethics, and en\textbf{V}ironment. All cleaning is done once in
 \texttt{common/contract.py} and imported by all three members, so nobody re-cleans
 the data separately.
@@ -67,12 +67,12 @@ the data separately.
 \textbf{Step} & \textbf{Result} & \textbf{Rationale} \\
 \midrule
 Encode Likert 1--5 & numeric & Strongly Disagree $=1$ \dots\ Strongly Agree $=5$. \\
-``No Comments''/blank $\to$ NaN & --- & We didn't encode these as 3 (Neutral). Treating a non-answer as
+``No Comments''/blank $\to$ NaN & - & We didn't encode these as 3 (Neutral). Treating a non-answer as
 ``Neutral'' would fabricate data right at the centre of the scale and push
 correlations toward zero. \\
 Drop rows with $>30$ of 60 missing & $96 \to 87$ & Natural break in the data (see below). \\
 Respondents $\times$ items matrix & $87 \times 60$ & 62 missing cells remain. \\
-Per-item $z$-score, computed on all 87 & --- & This is what makes the rest of the analysis work; see below. \\
+Per-item $z$-score, computed on all 87 & - & This is what makes the rest of the analysis work; see below. \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -98,7 +98,7 @@ missing cell (C). Each member also ran a mean-imputed variant as a sanity check;
 the differences are tiny (for B, mean $|\Delta r| = 0.0033$).
 
 Two items, E02 and T10, looked like they might be reverse-worded. We flagged them but
-didn't flip them --- since we have a signed network, it should be able to discover
+didn't flip them. Since we have a signed network, it should be able to discover
 reverse-coding as negative edges on its own.
 E02 does end up behaving as a minority-opinion item; T10 does not.
 
@@ -125,29 +125,29 @@ statements, so every comparison is one population measured two ways.
 \setlength{\tabcolsep}{6pt}
 \end{table}
 
-\textbf{A --- agreement network.} Two students get an edge when their $z$-scored
+\textbf{A: agreement network.} Two students get an edge when their $z$-scored
 response vectors are similar enough. A cosine threshold of $0.15$ gives 822 edges,
 mean degree 18.9, and one connected component. This isn't a knife-edge choice:
 sweeping the threshold, the giant component holds every node up to $0.225$ and only
 drops below half past $0.325$. We also built a mutual-$k$NN version ($k=8$) as an
 alternative, which we use for the spreading dynamics in Section 3.4.
 
-\textbf{B --- signed statement network.} Statements are connected by the Pearson
+\textbf{B: signed statement network.} Statements are connected by the Pearson
 correlation of their response profiles across students, keeping the sign so that
 opposition shows up as negative edges. We test significance against a permutation null
 where each item is independently shuffled, with Benjamini--Hochberg FDR at $q=0.05$.
 402 of 1770 candidate pairs survive (smallest retained $|r|$ is $0.274$). We first tried
 a family-wise max-statistic threshold, but that demanded $|r| > 0.50$ and killed
-every negative edge --- which defeated the whole point of building a signed network.
+every negative edge- which defeated the whole point of building a signed network.
 The per-edge FDR rule keeps 391 positive and 11 negative edges.
 
-\textbf{C --- bipartite deviation network.} Instead of removing the ceiling effect and
+\textbf{C: bipartite deviation network.} Instead of removing the ceiling effect and
 studying what's left, this one makes the residual the actual object of study. A
 student gets connected to a statement when they answered it more than one SD
 from the class mean, weighted by $|z|$. At cutoff $1.0$ this gives 1200 edges, with
 every student and every statement participating.
 
-All these thresholds are somewhat arbitrary --- a slightly different value would also
+All these thresholds are somewhat arbitrary, i.e. a slightly different value would also
 be defensible. So each one was swept. The short version: coarse structure doesn't change,
 fine detail does. A's threshold and $k$NN rules share only 25.2\% of their edges by
 Jaccard overlap but still give the same two communities, and C's cutoff range
@@ -160,7 +160,7 @@ scratch produces identical outputs.
 \begin{figure}[h]
 \centering
 \includegraphics[width=1.0\textwidth]{../member_b_statement_net/figures/fig01_construction.png}
-\caption{The problem and one response to it. \textit{Left:} the response distribution ---
+\caption{The problem and one response to it. \textit{Left:} the response distribution, i.e.
 80\% of answers given are Agree or Strongly Agree, which is why every construction in this
 report operates on $z$-scores rather than raw responses. \textit{Right:} the observed
 distribution of $|r|$ across all 1770 statement pairs sits clearly to the right of a
@@ -174,7 +174,7 @@ separates.}
 
 Louvain on the agreement network finds two main communities of 48 and 35
 students (plus two tiny pairs) at modularity $Q = 0.432$. On its own that number
-doesn't mean much --- Louvain will find some partition on any graph. What matters is the
+doesn't mean much. Louvain will find some partition on any graph. What matters is the
 comparison to a degree-preserving configuration model, which scores
 $0.178 \pm 0.007$ over 30 rewirings. The observed value is \textbf{35.5 standard
 deviations above that}. The partition is also strongly assortative: 746 of 822 edges
@@ -182,7 +182,7 @@ deviations above that}. The partition is also strongly assortative: 746 of 822 e
 between-community ones (0.286 vs 0.212).
 
 The network is also much more transitive than you'd expect by chance. Average local
-clustering is $0.505$ against an Erd\H{o}s--R\'enyi null of $0.220 \pm 0.009$ --- about
+clustering is $0.505$ against an Erd\H{o}s--R\'enyi null of $0.220 \pm 0.009$, about
 32 SD above. If a student agrees with two others, those two very likely agree
 with each other too. Average shortest path length ($2.054$) is actually slightly
 \textit{longer} than the null ($1.792$), so the network is locally cliquey rather than
@@ -199,7 +199,7 @@ main blocs are clearly visible and far from random
 The more interesting part is \textit{what} these two blocs actually differ on. They're
 not opposed camps. Both rank the same statements highest; they just differ in how
 strongly they agree. One bloc (35 students) has overall mean $z$ of $+0.371$, the
-other (48 students) $-0.283$. It's a split in conviction, not in position --- one group
+other (48 students) $-0.283$. It's a split in conviction, not in position. One group
 feels strongly, the other is more moderate, but they're not on opposite sides.
 
 And this intensity gap is concentrated in specific topics. Of the twenty statements that
@@ -211,7 +211,7 @@ V $0.986$, S $0.835$, E $0.536$, T $0.434$.
 \centering
 \includegraphics[width=1.0\textwidth]{../member_a_agreement_net/figures/fig07_community_profile.png}
 \caption{What separates the two blocs. \textit{Left:} the twenty most discriminating
-statements --- eighteen of them are Environment or Society/Ethics. \textit{Right:} the same
+statements, Eighteen of them are Environment or Society/Ethics. \textit{Right:} the same
 result aggregated by block. The class divides over how strongly to hold environmental and
 social positions, not over technology or education.}
 \end{figure}
@@ -220,27 +220,27 @@ social positions, not over technology or education.}
 
 The signed statement network is overwhelmingly positive: 391 of 402 edges. The eleven
 negative edges are the interesting ones, and they're not scattered randomly.
-Eight of the eleven touch a single statement --- E03 (``Class attendance should be compulsory
-for all courses'') --- which anti-correlates with a cluster of
+Eight of the eleven touch a single statement - E03 (``Class attendance should be compulsory
+for all courses''), which anti-correlates with a cluster of
 progressive-education and innovation items (E04, E07, E10, E11, E12, T06, S06). What
 looks like random dissent is actually one clear axis: traditionalist vs
 progressive views on pedagogy.
 
 The network is also almost perfectly balanced. Out of 1298 closed
-triads, \textbf{zero} are frustrated --- every existing triangle has consistent signs.
+triads, \textbf{zero} are frustrated; every existing triangle has consistent signs.
 The frustration index (minimum sign flips needed for a clean
 two-faction split) is 2 out of 402 edges. A null model that reshuffles which edges carry
 the eleven negative signs while keeping the topology fixed gives $10.98 \pm 0.16$, putting
 the observed value 56 SD \textit{below} chance. (The two ``wrong'' edges must sit on a
 longer signed cycle since the triangle census is already perfect.)
-Basically, whatever this class believes, it believes it consistently --- there are
+Basically, whatever this class believes, it believes it consistently. There are
 almost no cases of holding contradictory positions.
 
 One more thing: Louvain on the positive backbone
 finds eight communities whose match with the survey's T/E/S/V blocks is weak (NMI $= 0.277$).
 The class doesn't organise its opinions along the topic boundaries the survey designers
 set up. The clearest example is T08 (AI-assisted diagnosis) and T09 (autonomous vehicles),
-which survive the FDR cut with \textit{zero edges} --- two Technology statements that
+which survive the FDR cut with \textit{zero edges}. Two Technology statements that
 don't correlate with anything in the survey, including the rest of Technology.
 
 \begin{figure}[h]
@@ -253,7 +253,7 @@ form a dense core while Technology sits on the rim, with T08 and T09 fully isola
 
 \subsection{Consensus has structure; dissent does not}
 
-The bipartite network asks the opposite question --- not who agrees, but who breaks
+The bipartite network asks the opposite question, i.e., not who agrees, but who breaks
 from the class and on what. The most deviated-on statement is T13 (cybersecurity investment),
 where 60 of 87 students answered more than one SD from the mean. Interestingly,
 the lowest-mean items are \textit{not} the highest-deviation items: E03 and E02, which
@@ -261,22 +261,22 @@ are central to B's disagreement structure, rank only eleventh and below here. A 
 means the class agrees something is false; high deviation degree means the class
 can't settle on it. Those are different things.
 
-Projecting this bipartite graph onto the 87 students --- connecting two students when they
-deviate on the same issues --- gives what was probably our most surprising result. Louvain returns
+Projecting this bipartite graph onto the 87 students, i.e., connecting two students when they
+deviate on the same issues, gives what was probably our most surprising result. Louvain returns
 two communities at $Q = 0.0368$, which is low. But low isn't the same as meaningless, so we
 compared it against a degree-preserving null, same as we did for network A. The null scores
-$0.0567 \pm 0.0032$. So the co-dissent network isn't just weakly clustered --- it's
+$0.0567 \pm 0.0032$. So the co-dissent network isn't just weakly clustered, it's
 \textbf{6.1 SD \textit{less} clustered than a random graph} with the same degree
 sequence.
 
 Compare that with A's $+35.5$ SD on the same 87 students, and you get the main finding:
 when students are linked by what they agree on, they form two clear
 camps. When the exact same students are linked by what they dissent on, there's
-basically no structure at all. There's no ``contrarian clique'' --- disagreeing with the class on
+basically no structure at all. There's no ``contrarian clique'', disagreeing with the class on
 one thing doesn't predict what else you'll disagree on.
 
 Sorting the incidence matrix by degree does give a nested-looking, triangular pattern,
-and NODF $= 41.8$ suggests a hierarchy of dissent --- that students work
+and NODF $= 41.8$ suggests a hierarchy of dissent, i.e. that students work
 down a shared ordering of how contentious each statement is. But that doesn't hold up
 against a null either.
 NODF goes up automatically with heterogeneous degrees, and degrees here range from 3 to 35
@@ -302,7 +302,7 @@ static structure alone didn't.
 student $\to$ item $\to$ student can only travel between students through an issue they
 both deviate on, so mean first-passage time (MFPT) works as an issue-mediated distance.
 Computed exactly from the fundamental matrix with the true stationary distribution
-$\pi_j \propto \mathrm{strength}_j$, MFPT ranges from $39.8$ to $1063.5$ steps --- a 27-fold
+$\pi_j \propto \mathrm{strength}_j$, MFPT ranges from $39.8$ to $1063.5$ steps, i.e. a 27-fold
 spread that looks like it should mean something interesting. But it doesn't, really.
 MFPT correlates with deviation degree at Spearman $\rho = -0.971$, and dividing out
 node strength leaves a relative MFPT range of just $1.005$--$1.118$. The deviation
@@ -325,12 +325,12 @@ random ones. On the dense threshold graph the choice doesn't matter: both reach
 basically the whole class. On the sparser mutual-$k$NN graph, centrality seeding is
 actually \textit{worse}: coverage at $t=30$ is $0.244 \pm 0.266$ for the top eigenvector
 seeds vs $0.487 \pm 0.401$ for random (mean $\pm$ SD, 30 trials; Welch
-$t = 2.76$, $p = 0.008$). Worth noting: on a graph this sparse an outbreak either takes off
+$t = 2.76$, $p = 0.008$). Worth noting is that on a graph this sparse an outbreak either takes off
 or dies out, so the SD is as large as the mean and individual trials range from
 near-zero to near-complete coverage.
 
 The reason is seed redundancy. Eigenvector centrality rewards being in the same dense
-core, so the three top students are all right next to each other ---
+core, so the three top students are all right next to each other. Their
 mean pairwise distance 1.00 hops, versus 3.33 for random seeds on the same graph.
 They're basically covering the same area. On the dense graph where
 everyone is about 2 hops from everyone else, that redundancy doesn't cost anything. But
@@ -342,12 +342,12 @@ make the graph sparser and it becomes the dominant effect.
 \caption{SI spreading from three seeds, 30 trials per condition, shading $\pm 1$ SD.
 \textit{Left:} on the dense threshold graph the seeding strategy makes no difference.
 \textit{Right:} on the sparse mutual-$k$NN graph random seeding reaches roughly twice as
-many students on average, though the bands overlap a lot --- on a sparse graph
+many students on average, though the bands overlap a lot; on a sparse graph
 results are close to all-or-nothing.}
 \end{figure}
 
 We also ran Deffuant--Weisbuch bounded-confidence dynamics on the agreement network and
-Altafini signed consensus on the statement network. Both behaved as expected --- a
+Altafini signed consensus on the statement network. Both behaved as expected. A
 fragmentation-to-consensus transition around $\varepsilon \approx 0.30$--$0.55$,
 and slow monotone decay from $1.21$ to $0.08$ (consistent with a nearly balanced
 network). Neither gave us anything that distinguishes this class from any other,
@@ -358,9 +358,9 @@ so we just note them here briefly.
 \subsection{Two different constructions rank the same statements the same way}
 
 Member A measures, for each statement, the gap in mean $z$-score between the two
-student blocs --- how much that statement separates the class. Member B measures
+student blocs, i.e. how much that statement separates the class. Member B measures
 how far a perturbation to that statement propagates through the signed correlation
-network --- its dynamical leverage. These come from different graphs, different node sets,
+network, its dynamical leverage. These come from different graphs, different node sets,
 and different math. Across the 58 statements both can score, they agree at
 Spearman $\rho = +0.784$ ($p = 3.5 \times 10^{-13}$; Pearson $r = +0.617$).
 
@@ -382,7 +382,7 @@ Technology (T) & 0.434 & $0.714 \pm 0.249$ & 23.40 \\
 \end{table}
 
 The spread is also worth looking at. Environment's leverage has an SD
-of $0.014$ --- all fifteen V statements fall between $0.914$ and $0.967$. Technology's is
+of $0.014$, i.e. all fifteen V statements fall between $0.914$ and $0.967$. Technology's is
 eighteen times larger at $0.249$, ranging from $0.233$ to $0.953$. Environment acts as
 one tightly coupled bloc in the opinion graph; Technology is more of a loose collection of
 statements that just happen to share a label. This lines up with B finding that the
@@ -392,21 +392,21 @@ not correlating with anything at all.
 \subsection{Influence and deviation go in opposite directions}
 
 The third column in that table runs backwards. Member C's deviation
-degree --- how many students answered a statement more than one SD from the mean ---
-anti-correlates with both other measures: $\rho = -0.390$ ($p = 0.002$) against B's
+degree, how many students answered a statement more than one SD from the mean,
+anti-correlates with both other measures, i.e. $\rho = -0.390$ ($p = 0.002$) against B's
 leverage, and $\rho = -0.349$ ($p = 0.006$) against A's bloc gap.
 
 So the statements with the most influence and the sharpest class-dividing power are
 the ones individuals deviate from \textit{least}. Environment is where the class is
-most tightly coupled --- V statements sort students into camps by
+most tightly coupled. V statements sort students into camps by
 \textit{how strongly} they agree, while attracting almost no individual dissent.
 Technology and Education are where people actually break ranks.
 
 This also means there are two different senses of ``controversial'' here, and they point
 in opposite directions. B finds E03 as the disagreement axis (8 of 11 negative
 edges). C finds T13 as the biggest flashpoint (60 of 87 students deviating). Both
-are correct: E03 produces \textit{patterned anti-correlation} --- splitting the class into
-opposed sides --- while T13 produces \textit{raw spread}, where everyone answers
+are correct. E03 produces \textit{patterned anti-correlation}, splitting the class into
+opposed sides. While T13 produces \textit{raw spread}, where everyone answers
 differently but with no particular pattern.
 
 \begin{figure}[h]
@@ -423,25 +423,25 @@ driven mostly by the lower tail.}
 The clearest overall result is the asymmetry between agreement and dissent.
 On the same 87 students, agreement structure sits $35.5$ SD above its null while
 co-dissent sits $6.1$ SD \textit{below} its own. Three independent measurements on
-network C --- modularity, nestedness, MFPT --- all say the same thing: once you know
+network C, modularity, nestedness, MFPT, all say the same thing, i.e. once you know
 how often a student deviates, you know basically everything about where they sit in the
 network.
 
 That agreement and dissent really are measuring different things (not just two views of one
 structure) is confirmed directly. Correlating A's pairwise similarity against C's
 symmetrised issue-mediated distance across 3741 student pairs gives
-$r = +0.036$ ($\rho = +0.026$) --- 0.1\% of variance explained. The $p$-value only
+$r = +0.036$ ($\rho = +0.026$), 0.1\% of variance explained. The $p$-value only
 clears $0.05$ because 3741 pairs make tiny effects detectable; there's essentially no
 relationship here. Knowing two students think alike tells you nothing about whether
 they break from the class on the same questions.
 
-Stepping back, the picture of this class is: a cohort that agrees on most things and
-agrees consistently --- clustering at 2.3$\times$ the random baseline, zero frustrated
+Stepping back, the picture of this class is that a cohort that agrees on most things and
+agrees consistently, clustering at 2.3$\times$ the random baseline, zero frustrated
 triangles out of 1298. The real division isn't topical but about intensity, separating
 those who feel strongly about environmental and social issues from those who hold
 the same views more mildly. The disagreements that exist are concentrated on a
 single pedagogical axis rather than spread across topics. And individual dissent is
-genuinely idiosyncratic --- students break from consensus at very different rates, but
+genuinely idiosyncratic; students break from consensus at very different rates, but
 \textit{which} issues they break on seems to be personal rather than factional.
 
 \subsection{Limitations}
@@ -450,7 +450,7 @@ This is a single class of 87 students, so none of this generalises beyond it.
 The ceiling effect, while handled, still limits what we can claim: after
 $z$-scoring we're analysing residuals around a near-universal agreement, and the
 ``moderate'' bloc still agrees with most statements. Every network needed a threshold, and
-while the overall structure is robust to all of them, individual edges aren't --- A's two
+while the overall structure is robust to all of them, individual edges aren't. A's two
 edge rules share only a quarter of their edges. Claims about specific edges or individual
 students should be taken with that in mind; claims about blocs and null comparisons hold
 across the sweeps. Also, leverage saturates near $0.96$, so the $\rho = +0.784$ correlation
