@@ -35,6 +35,8 @@ member_*/figures/        figNN_description.png
 member_*/tables/         tableNN_description.csv
 member_*/gexf/           one file per analysed graph, named for its construction
 member_*/FINDINGS.md     results log: technical claim, then plain English
+cross_analysis/          comparisons between the three networks (joint work)
+FINDINGS_CROSS.md        what the three networks say when compared
 report/                  the submitted report
 development_guidelines.md  the conventions all three members agreed on
 ```
@@ -53,9 +55,13 @@ jupyter nbconvert --to notebook --execute --inplace \
     --ExecutePreprocessor.timeout=1800
 ```
 
-Each notebook runs standalone and regenerates every figure, table and GEXF it
-references. No member's code imports another member's; `common/` is the only
-shared dependency.
+Each member's notebook runs standalone and regenerates every figure, table and
+GEXF it references. No member's code imports another member's; `common/` is the
+only shared dependency.
+
+`cross_analysis/notebook.ipynb` is run **last**: it reads the three members'
+exported CSVs (their published outputs, not their code) and produces the
+cross-network comparisons written up in `FINDINGS_CROSS.md`.
 
 ## Conventions that matter
 
@@ -63,9 +69,9 @@ shared dependency.
   `common/contract.py` and nowhere else: Likert → 1–5, `No Comments`/blank →
   NaN (never Neutral), drop rows missing more than 30 of 60 answers → 87
   respondents, then per-item z-score across the full 87.
-- **Per-item z-scoring is load-bearing.** ~80% of answers are Agree or
-  Strongly Agree, so raw cosine similarity sits near 0.96 for every pair of
-  students and no structure survives without it.
+- **Per-item z-scoring is load-bearing.** 80% of the 5158 answers given are
+  Agree or Strongly Agree, so raw cosine similarity sits near 0.96 for every
+  pair of students and no structure survives without it.
 - **`SEED = 42`, and always iterate over `sorted(...)`.** The real test is that
   two consecutive full re-runs produce identical CSVs; a seed alone does not
   guarantee that.
@@ -89,5 +95,13 @@ modules, its notebook, its figures, tables and GEXF exports, and its
 | Harith | `member_b_statement_net/` | Signed correlation network over the 60 statements |
 | Navneet | `member_c_bipartite_net/` | Bipartite student–statement deviation network |
 
-`common/` (the data contract and the shared palette) and the report are joint
-work. The report's final section gives the detailed per-task breakdown.
+`common/` (the data contract and the shared palette), `cross_analysis/` and the
+report are joint work. The report's final section gives the detailed per-task
+breakdown.
+
+## The report
+
+`report/report.pdf` (8 pages, built from `report/report.tex` with `pdflatex`) is
+the submission. It is deliberately much shorter than the combined `FINDINGS.md`
+files: it carries 8 of the repo's 19 figures and the results that change a
+conclusion. The `FINDINGS.md` files remain the full working record behind it.

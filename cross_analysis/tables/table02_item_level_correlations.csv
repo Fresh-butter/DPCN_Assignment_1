@@ -1,0 +1,4 @@
+measure_x,measure_y,description_x,description_y,n_items,pearson_r,pearson_p,spearman_rho,spearman_p
+abs_gap,leverage,A: separates the two student blocs,B: dynamical leverage,58,0.6165875234730561,2.5578269822064025e-07,0.7838137131255961,3.4680449458391737e-13
+leverage,deviation_degree,B: dynamical leverage,C: how many students deviate,58,-0.3688707315867604,0.004381423430145083,-0.3899737437763017,0.002477342789391556
+abs_gap,deviation_degree,A: separates the two student blocs,C: how many students deviate,60,-0.2081336943282909,0.11053052390927588,-0.34896900571279277,0.006281272888526416

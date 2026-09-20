@@ -1,0 +1,5 @@
+network,owner,nodes,edges,density,modularity_Q,Q_null_mean,Q_null_z
+A — agreement (students),Vishal,87,822,0.2197273456295108,0.4320496654757073,0.1779098376191246,35.4698173463366
+B — signed statements,Harith,60,402,0.2271186440677966,,,
+C — bipartite deviation,Navneet,147,1200,,,,
+C — student co-dissent projection,Navneet,87,,,0.0367874072050627,0.056730439749144,-6.140613761886375

@@ -49,6 +49,50 @@ def degree_table(G: nx.Graph, node_type: str) -> pd.DataFrame:
 # NODF nestedness
 # ---------------------------------------------------------------------------
 
+def _nodf_from_matrix(M: np.ndarray) -> float:
+    """
+    NODF straight from a binary incidence matrix.
+
+    Same definition as compute_nodf (which reports the row and column halves
+    separately); kept matrix-level so the randomised null can call it directly
+    without rebuilding a graph for each of its replicates.
+    """
+    def _pairs(mat):
+        row_sums = mat.sum(axis=1)
+        total, count = 0.0, 0
+        for i in range(mat.shape[0]):
+            for j in range(i + 1, mat.shape[0]):
+                ki, kj = row_sums[i], row_sums[j]
+                if ki == kj or max(ki, kj) == 0:
+                    continue
+                total += int(np.dot(mat[i], mat[j])) / min(ki, kj)
+                count += 1
+        return (total / count * 100) if count else 0.0
+
+    return (_pairs(M) + _pairs(M.T)) / 2
+
+
+def incidence_matrix(G: nx.Graph):
+    """
+    Binary students x items incidence matrix, with sorted node orders.
+
+    Sorted (not set order) because the row/col ordering reaches the randomised
+    null below, and Python set iteration is not stable across processes.
+    """
+    students = sorted(n for n, d in G.nodes(data=True) if d.get("node_type") == "student")
+    items = sorted(n for n, d in G.nodes(data=True) if d.get("node_type") == "item")
+    s_idx = {s: i for i, s in enumerate(students)}
+    q_idx = {q: j for j, q in enumerate(items)}
+
+    M = np.zeros((len(students), len(items)), dtype=int)
+    for u, v in G.edges():
+        if u in s_idx and v in q_idx:
+            M[s_idx[u], q_idx[v]] = 1
+        elif v in s_idx and u in q_idx:
+            M[s_idx[v], q_idx[u]] = 1
+    return M, students, items
+
+
 def compute_nodf(G: nx.Graph) -> dict:
     """
     Compute NODF (Nestedness based on Overlap and Decreasing Fill).
@@ -58,18 +102,7 @@ def compute_nodf(G: nx.Graph) -> dict:
 
     Returns dict with: nodf, nodf_rows, nodf_cols
     """
-    students = [n for n, d in G.nodes(data=True) if d.get("node_type") == "student"]
-    items = [n for n, d in G.nodes(data=True) if d.get("node_type") == "item"]
-
-    # Build adjacency matrix (students x items)
-    s_idx = {s: i for i, s in enumerate(students)}
-    q_idx = {q: j for j, q in enumerate(items)}
-    M = np.zeros((len(students), len(items)), dtype=int)
-    for u, v in G.edges():
-        if u in s_idx and v in q_idx:
-            M[s_idx[u], q_idx[v]] = 1
-        elif v in s_idx and u in q_idx:
-            M[s_idx[v], q_idx[u]] = 1
+    M, students, items = incidence_matrix(G)
 
     def _nodf_pairs(mat):
         """Compute N for a 2D binary matrix (pairs along axis=0)."""
@@ -95,9 +128,79 @@ def compute_nodf(G: nx.Graph) -> dict:
     nodf_rows = _nodf_pairs(M)
     nodf_cols = _nodf_pairs(M.T)
     nodf = (nodf_rows + nodf_cols) / 2
+    assert abs(nodf - _nodf_from_matrix(M)) < 1e-9, "NODF implementations disagree"
 
     return {"nodf": nodf, "nodf_rows": nodf_rows, "nodf_cols": nodf_cols,
             "n_students": len(students), "n_items": len(items), "n_edges": G.number_of_edges()}
+
+
+# ---------------------------------------------------------------------------
+# NODF against a degree-preserving null
+# ---------------------------------------------------------------------------
+
+def _curveball_swap(A: np.ndarray, rng, n_swaps: int) -> np.ndarray:
+    """
+    Randomise a binary matrix while preserving BOTH degree sequences.
+
+    Repeatedly picks two rows and swaps a checkerboard pair -- one column where
+    only the first row has an edge, one where only the second does. Each swap
+    leaves every row sum and every column sum unchanged, so the randomised
+    matrix has exactly the deviation counts of the real one and differs only in
+    which student deviates on which item.
+    """
+    A = A.copy()
+    n_rows = A.shape[0]
+    done = 0
+    while done < n_swaps:
+        i, j = rng.integers(0, n_rows, 2)
+        if i == j:
+            continue
+        only_i = np.flatnonzero((A[i] == 1) & (A[j] == 0))
+        only_j = np.flatnonzero((A[i] == 0) & (A[j] == 1))
+        if len(only_i) == 0 or len(only_j) == 0:
+            continue
+        ci, cj = rng.choice(only_i), rng.choice(only_j)
+        A[i, ci], A[j, ci] = 0, 1
+        A[i, cj], A[j, cj] = 1, 0
+        done += 1
+    return A
+
+
+def nodf_null(G: nx.Graph, n_rep: int = 30, n_swaps: int = 20000,
+              seed: int = SEED) -> dict:
+    """
+    Compare the observed NODF against a degree-preserving null.
+
+    NODF rises mechanically with heterogeneous degrees, and this network has
+    very heterogeneous degrees by construction (students deviate on 3 to 35
+    items). A bare NODF therefore cannot distinguish "dissent is organised as a
+    hierarchy" from "some students simply deviate more than others". The null
+    fixes both degree sequences and destroys everything else, so whatever the
+    observed value clears here is structure that degree alone does not explain.
+    """
+    M, _, _ = incidence_matrix(G)
+    observed = _nodf_from_matrix(M)
+
+    rng = np.random.default_rng(seed)
+    null_vals = []
+    for _ in range(n_rep):
+        R = _curveball_swap(M, rng, n_swaps)
+        assert (R.sum(axis=1) == M.sum(axis=1)).all(), "row degrees not preserved"
+        assert (R.sum(axis=0) == M.sum(axis=0)).all(), "column degrees not preserved"
+        null_vals.append(_nodf_from_matrix(R))
+
+    null_vals = np.array(null_vals)
+    null_mean, null_sd = null_vals.mean(), null_vals.std()
+    return {
+        "nodf_observed": observed,
+        "nodf_null_mean": null_mean,
+        "nodf_null_sd": null_sd,
+        "nodf_null_min": null_vals.min(),
+        "nodf_null_max": null_vals.max(),
+        "z": (observed - null_mean) / null_sd if null_sd > 0 else np.nan,
+        "excess": observed - null_mean,
+        "n_rep": n_rep,
+    }
 
 
 # ---------------------------------------------------------------------------

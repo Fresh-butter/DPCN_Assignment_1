@@ -8,22 +8,22 @@ Full runnable pipeline in `notebook.ipynb`; figures in `figures/`, tables in
 
 ## Pipeline / data
 
-- Loads via `common/contract.py`, the single shared data contract: read
+- Loads via `common/contract.py`, the shared data contract: read
   `Survey_Results_UC.csv`, then drop any respondent missing more than
   30 of 60 answers → **87 respondents**. Members B and C import the same
-  function, so the three networks are provably describing the same cohort and
-  are directly comparable. (An earlier version of this analysis dropped any row
-  with a single missing answer, which left only 85 and discarded two
-  respondents for no reason; that rule is retired.)
+  function, so the three networks describe the same cohort and
+  can be directly compared. (An earlier version dropped any row
+  with a single missing answer, which left only 85 and threw away two
+  respondents for no good reason; we changed that.)
 - 60 Likert items (T01–T15, E01–E15, S01–S15, V01–V15) mapped to 1–5;
   `"No Comments"` and blanks → NaN, never Neutral. 62 cells remain missing.
   Pairwise-complete similarity handles them: each pair is scored on the items
-  both students answered, requiring at least 20 shared items.
-- **Per-item z-scoring is the load-bearing step.** Raw 1–5 vectors have a ~80%
-  Agree/Strongly-Agree ceiling, so every pair of students looks alike: raw
+  both students answered, needing at least 20 shared items.
+- **Z-scoring is what makes this whole analysis work.** Raw 1–5 vectors have a ~80%
+  Agree/Strongly-Agree ceiling, so every pair of students looks nearly identical: raw
   pairwise correlation is **mean 0.267** (min −0.359). After z-scoring,
   pairwise-complete cosine similarity spreads out to **mean −0.010**
-  (min −0.638, max 0.758) — a usable signal instead of a near-clique.
+  (min −0.638, max 0.758) — now we have a usable signal instead of basically a complete graph.
   (`fig01_similarity_distribution.png`)
 
 ## Network construction (edge-rule sensitivity)
@@ -36,50 +36,50 @@ Full runnable pipeline in `notebook.ipynb`; figures in `figures/`, tables in
 
 - Threshold graph is the primary network for everything below.
 - **Jaccard edge overlap between the threshold and kNN rules is only 0.252** —
-  the two rules agree on a quarter of their edges while both produce a single
-  connected component. *Which* student is "similar" to whom is highly
-  sensitive to the construction choice, even though the network's coarse
-  properties are not. Worth saying plainly in the report.
+  the two rules only agree on about a quarter of their edges, even though both
+  give a single connected component. *Which* student is "similar" to whom
+  changes a lot depending on the construction choice, even though the big-picture
+  properties don't.
 - The disparity-filter backbone collapses to a single edge. Each student's
-  ~19 edges carry near-uniform weight, so no student has a standout "opinion
-  twin". The agreement structure is diffuse and graded, not hub-and-spoke.
+  ~19 edges carry roughly equal weight, so no student has a clear "opinion
+  twin". The agreement structure is spread out and gradual, not hub-and-spoke.
   (`table01_edge_rule_comparison.csv`)
 
 ## Percolation: where the network falls apart
 
 Sweeping the similarity threshold (`table02_percolation_sweep.csv`,
-`fig02_percolation_sweep.png`): the giant component holds at 100% down to
+`fig02_percolation_sweep.png`): the giant component stays at 100% down to
 threshold 0.225, loses its first node at 0.25, and drops below 50% between
-0.325 and 0.350. The primary threshold 0.15 sits comfortably below the
-fragmentation edge — the network is not an artifact of a knife-edge cutoff.
+0.325 and 0.350. Our primary threshold of 0.15 sits comfortably below where
+fragmentation starts — the network isn't just barely holding together.
 
 ## Structure: degree, clustering, paths
 
 - **Degree** (`fig03_degree_distribution_logbinned.png`): unimodal, range
   **6–32**, median 19, sd 7.3, no isolates, 11 students with degree < 10.
-  Not a power law — expected for a threshold graph on roughly normal
+  Not a power law — which makes sense for a threshold graph on roughly normal
   similarity values.
 - **Clustering**: average local clustering **0.505**, global transitivity
   **0.586**. Average shortest path **2.06**; one connected component.
-- **Degree assortativity +0.278** — well-connected students preferentially
-  connect to other well-connected students, consistent with the community
+- **Degree assortativity +0.278** — well-connected students tend to connect
+  to other well-connected students, which fits with the community
   structure below.
 
 ## Communities
 
 - Louvain (seeded) finds **4 communities of sizes [48, 35, 2, 2]**,
   **modularity Q = 0.432**. The two size-2 groups (students 84/43 and 26/116)
-  are negligible; the effective structure is **two large opinion blocs**.
+  are tiny; the real structure is **two large opinion blocs**.
   (`table05_communities.csv`, `fig04_network_communities.png`)
-- **Community attribute assortativity = +0.821** — edges overwhelmingly stay
+- **Community attribute assortativity = +0.821** — edges mostly stay
   inside their own bloc. **746 of 822 edges (90.8%) are within-community**,
   and within-community edges are stronger (mean weight 0.286 vs 0.212
-  between). The blocs are genuinely segregated, not a partition imposed on
-  a homogeneous blob.
+  between). The blocs are genuinely separated, not a random partition
+  imposed on a uniform blob.
 - Community 1 (35 students) is internally much denser than community 0
   (48 students): mean degree **24.3 vs 15.9**.
 
-  (Community ids are assigned canonically — largest first — so they are stable
+  (Community ids are assigned canonically — largest first — so they're stable
   across runs. See the reproducibility note at the end.)
 
 ### What the two blocs actually believe
@@ -87,8 +87,8 @@ fragmentation edge — the network is not an artifact of a knife-edge cutoff.
 Profiled by comparing per-item mean z-scores between the two blocs
 (`table09_community_profile.csv`, **`fig07_community_profile.png`**).
 
-- The split is **not topical — it is a split in intensity**. Both blocs rank
-  the same statements highest; they differ in how hard they agree.
+- The split is **not by topic — it's a split in intensity**. Both blocs rank
+  the same statements highest; they differ in how strongly they agree.
   - **Community 1 (n = 35, "high-conviction")**: overall mean z **+0.371**.
   - **Community 0 (n = 48, "moderate agreement")**: overall mean z **−0.283**.
 - **The gap is concentrated in Environment and Society/Ethics**: of the 20
@@ -97,11 +97,10 @@ Profiled by comparing per-item mean z-scores between the two blocs
 - Largest gaps: S09 (inclusive university discourse) 1.30, V10 (consumer
   environmental responsibility) 1.19, S14 (ethical leadership) 1.17,
   V07 (biodiversity) 1.15.
-- Framing for the report: these are not "pro- vs anti-sustainability" camps —
-  given the ceiling effect everyone leans agree. They are a **fervent
-  idealist bloc versus a tepid agreement bloc**, and the divide is almost
-  entirely about how strongly one feels about environmental and social
-  questions, not about technology or education.
+- These aren't "pro- vs anti-sustainability" camps — given the ceiling effect
+  everyone leans agree. It's more like a fervent bloc and a temperate one, and the
+  divide is almost entirely about how strongly one holds environmental and
+  social positions, not about technology or education.
 
 ## Hubs and bridges (centrality)
 
@@ -125,19 +124,18 @@ Mean ± SD over 30 seeded realizations (`table06_null_model_comparison.csv`).
 | Giant component fraction | 1.00 | ER 1.00 ± 0.00 | — |
 | **Louvain modularity Q** | **0.432** | config. 0.178 ± 0.007 | **+35.5** |
 
-- **Clustering is 2.3× the random-graph null, about 32 SD above chance.**
-  This is the single strongest structural result: agreement is strongly
-  transitive — if A agrees with B and with C, then B and C tend to agree too.
-  Real homophily, not a threshold artifact.
+- Clustering is 2.3× the random-graph null, about 32 SD above chance.
+  Agreement is strongly transitive — if A agrees with B and with C, then B and
+  C usually agree too. That's real homophily, not just an artifact of the threshold.
 - Average path length is slightly *longer* than the ER null. The network is
-  clustered but not shortcut-rich — locally cliquey rather than small-world.
-- **The two blocs are not an artifact of running Louvain.** Louvain returns
-  *some* partition for any graph, so Q = 0.432 only means something next to
-  what a structureless graph with the same degree sequence scores. Rewiring
-  the network as a configuration model gives Q = 0.178 ± 0.007, putting the
+  clustered but doesn't have many shortcuts — locally cliquey rather than small-world.
+- **The two blocs aren't just an artifact of Louvain.** Louvain finds
+  *some* partition for any graph, so Q = 0.432 only means something compared to
+  what a random graph with the same degree sequence scores. Rewiring the
+  network as a configuration model gives Q = 0.178 ± 0.007, putting the
   observed value **35.5 SD above chance** (`table11_modularity_null.csv`).
-  This is the number to quote against member C's co-dissent projection, which
-  scores *below* its own null.
+  Member C's co-dissent projection, on the same 87 students, scores *below*
+  its own null — see `FINDINGS_CROSS.md` §3.
 
 ## Dynamics 1: bounded-confidence opinion dynamics (Deffuant–Weisbuch)
 
@@ -145,48 +143,53 @@ Sweep over the confidence threshold ε, 30 seeded trials each
 (`table07_bounded_confidence_sweep.csv`, `fig05_bounded_confidence_transition.png`).
 
 - ε = 0.05 → **21.7 final opinion clusters**; the population shatters.
-- Cluster count falls steadily; **the fragmentation→consensus transition band
-  is ε ≈ 0.30–0.55**. The fraction of trials reaching a single cluster goes
+- Cluster count falls steadily; **the transition from fragmentation to consensus
+  happens around ε ≈ 0.30–0.55**. The fraction of trials reaching a single cluster goes
   0.13 (ε=0.30) → 0.20 → **0.57 (ε=0.40)** → 0.83 → 0.97 → **1.00 (ε=0.55)**.
-- Report it as a *band*, not a single critical value: the transition is
-  gradual over ~0.25 in ε, not a sharp threshold.
-- Consensus arrives at a moderate ε rather than requiring near-total
-  open-mindedness — the network's own dense local structure (clustering 2.3×
-  the null) does part of the work of pulling opinions together.
+- It's a band, not a sharp threshold: the transition is spread over ~0.25 in ε.
+- Consensus happens at a moderate ε rather than needing near-total
+  open-mindedness — the network's dense local structure (clustering 2.3×
+  the null) helps pull opinions together on its own.
 
 ## Dynamics 2: SI spreading — does it matter whom you seed?
 
 3 seeds, 30 seeded trials per condition, per-edge infection probability 0.10.
 (`table08_si_seeding_comparison.csv`, `table10_si_coverage_curves.csv`,
-`fig06_si_seeding_comparison.png`, **`fig08_si_seeding_density.png`**)
+**`fig08_si_seeding_density.png`**)
 
-- **On the threshold graph, seeding the three most central students gives no
-  meaningful advantage.** Coverage at t = 30 is 0.9985 for high-eigenvector
-  seeds vs 0.9950 for random — a 0.35 percentage-point edge on a network where
+- **On the threshold graph, seeding the top-centrality students gives basically
+  no advantage.** Coverage at t = 30 is 0.9985 for high-eigenvector
+  seeds vs 0.9950 for random — a tiny difference on a network where
   both strategies reach essentially everyone. Random seeding actually reaches
   *full* coverage faster when it gets there (7.75 vs 9.11 steps).
-- **On the mutual-kNN graph, centrality seeding is actively worse**:
-  coverage at t = 30 is **0.244 for high-eigenvector seeds vs 0.487 for
-  random** — random seeding reaches twice as many students.
-- **Mechanism — seed redundancy.** The top-3 eigenvector students are
-  mutually adjacent on both graphs (**mean pairwise seed distance 1.00 hop**,
+- **On the mutual-kNN graph, centrality seeding is actually worse**:
+  coverage at t = 30 is **0.244 ± 0.266 for high-eigenvector seeds vs
+  0.487 ± 0.401 for random** (mean ± SD over 30 trials) — random seeding
+  reaches roughly twice as many students on average.
+  **The spread matters as much as the gap.** On a graph this sparse an
+  outbreak either catches or dies out, so the SD is as large as the mean
+  (coefficient of variation 1.09 and 0.82) and individual trials range from
+  near-zero to near-full coverage. The difference in means is still
+  solid: Welch t = 2.76 on 30 trials per arm, p = 0.008. But the ±SD bands in
+  `fig08_si_seeding_density.png` overlap heavily and the figure should be
+  read that way.
+- **Why this happens — seed redundancy.** The top-3 eigenvector students are
+  right next to each other on both graphs (**mean pairwise seed distance 1.00 hop**,
   vs 2.00 hops for random seeds on the threshold graph and **3.33 hops** on
-  the kNN graph). Eigenvector centrality by construction rewards being in the
-  same dense core, so the three "best" seeds largely duplicate each other's
-  reach.
+  the kNN graph). Eigenvector centrality rewards being in the
+  same dense core, so the three "best" seeds basically cover the same
+  area.
 - **Why density hides it**: on the dense threshold graph every student is
-  ~2 hops from everyone, so redundant seeds cost nothing. Sparsify the same
-  data to mean degree 4.8 and the redundancy becomes the dominant effect.
-  The textbook "seed the hubs" heuristic fails here for a reason that is
-  invisible until the network is sparse — a good discussion point for the
-  report's dynamics section.
+  ~2 hops from everyone, so having redundant seeds doesn't cost anything. Make the
+  graph sparser and the redundancy becomes the main effect.
+  The textbook "seed the hubs" idea fails here, and it fails for a reason
+  that's invisible until the network is sparse.
 
 ## E02 / T10 / E03 reverse-coding check
 
 - **E02** ("Traditional written examinations accurately measure knowledge"):
   mean 2.84, sd 1.12 — low and unusually spread. Consistent with being
-  phrased against its block's grain; treat correlation signs involving E02
-  with care.
+  phrased against its block's grain; be careful with correlation signs involving E02.
 - **T10** ("Protection of personal data over convenience"): mean 4.18,
   sd 0.88 — high and tight like most T items. No sign of reverse phrasing.
 - **E03** ("Class attendance should be compulsory"): mean **2.06**, the
@@ -196,16 +199,16 @@ Sweep over the confidence threshold ε, 30 seeded trials each
 
 1. **S/V items dominate.** They drive the two-bloc split here (18 of the top
    20 discriminating items) and are the top strength hubs in member B's
-   statement network. Independent confirmation from two different graphs.
+   statement network. Two different graphs, same conclusion.
 2. **Construction choice matters.** Threshold vs kNN Jaccard overlap 0.252
    here; member B's FDR vs fixed-threshold rule changes negative edges from
-   11 to 4. Both members found that the coarse structure is robust while the
-   specific edges are not — a methodological finding in its own right.
+   11 to 4. Both of us found that the big picture is stable while the
+   specific edges aren't — which is a finding in itself.
 3. **Coherence.** Clustering 2.3× the ER null here and near-zero frustration
-   in member B both say the same thing: this class's opinions form an
-   unusually consistent system.
+   in member B both point to the same thing: this class's opinions are
+   unusually consistent.
 4. **Bridges vs deviants.** Student 72 is the structural bridge in *agreement*
-   space; member C's deviation network finds a different set of students at
+   space; member C's deviation network finds completely different students at
    the top. Being a bridge between opinion blocs is not the same as being
    a contrarian.
 
@@ -233,29 +236,15 @@ Sweep over the confidence threshold ε, 30 seeded trials each
 | Mean \|z-gap\| per item by block (T/E/S/V) | 0.434 / 0.536 / 0.835 / 0.986 |
 | Deffuant–Weisbuch transition band | ε ≈ 0.30–0.55 |
 | SI coverage at t=30, threshold graph (central / random) | 0.9985 / 0.9950 |
-| SI coverage at t=30, kNN graph (central / random) | **0.244 / 0.487** |
+| SI coverage at t=30, kNN graph (central / random) | **0.244 ± 0.266 / 0.487 ± 0.401** (Welch t = 2.76, p = 0.008) |
 | Mean pairwise seed distance (central / random, kNN) | 1.00 / 3.33 hops |
 
 
 ## Reproducibility
 
-Every number in this file is produced by `notebook.ipynb` with `SEED = 42`, and
-the notebook is byte-for-byte reproducible: two consecutive executions write
-identical CSVs.
-
-Getting there required fixing two silent non-determinism bugs that `SEED = 42`
-did *not* cover, because they came from Python's hash randomisation rather than
-from any RNG:
-
-1. **`si_spread` iterated a `set` of infected nodes.** The order of that
-   iteration sets the order of the `rng.random()` draws, so the SI results
-   changed between runs even with the seed fixed. Now iterates `sorted(...)`.
-2. **Louvain returned sets whose order varied.** The *partition* was stable
-   ([48, 35, 2, 2], Q = 0.4320 every time), but the community ids and the row
-   order of the exported table shuffled, and re-ordering the rows changed the
-   float summation in the per-community means. `detect_communities` now sorts
-   the members inside each community and orders communities largest-first.
-
-Worth a sentence in the report's methodology: a fixed seed is necessary but not
-sufficient for reproducibility once set iteration order touches a stochastic
-path.
+Every number here is produced by `notebook.ipynb` with `SEED = 42`, and two consecutive
+executions write identical CSVs. Getting that to work required fixing two places where a Python
+`set` was iterated — in `si_spread` and in the Louvain wrapper — because per-process hash
+randomisation changed the order of random draws and of float summation even with the seed
+fixed. Both now iterate `sorted(...)`, and communities are ordered largest-first so their
+ids are stable across runs.
