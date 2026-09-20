@@ -1,10 +1,10 @@
 """
 build.py -- member_a_agreement_net
 
-Builds the agreement network between students: nodes = 85 respondents
-(see load.py docstring for why 85, not 87 -- explicit user choice to use
-data/clean/cleaned_Survey_Results_UC.csv). Edge weight = similarity of
-per-item z-scored opinion vectors, pairwise-complete on missing items.
+Builds the agreement network between students: nodes = 87 respondents
+(raw CSV + the shared >30-missing-per-row rule -- see load.py). Edge weight
+= similarity of per-item z-scored opinion vectors, pairwise-complete on
+missing items.
 
 Three arbitrary construction choices are made explicit and compared
 (per CLAUDE.md: "run the alternative too and record the difference"):

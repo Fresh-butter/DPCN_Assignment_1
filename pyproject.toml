@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dpcn-assignment-1"
+version = "1.0.0"
+description = "Opinion network formation from a class survey: three networks, one data contract."
+requires-python = ">=3.12"
+
+# Dependencies are deliberately NOT listed here. requirements.txt carries the
+# exact pinned versions everyone installs into the shared venv, because
+# Louvain and scipy.linalg results can move between minor versions
+# (development_guidelines.md §5). This file exists only to make `common` an
+# installed package so notebooks can import it from any working directory.
+
+[tool.setuptools]
+packages = ["common"]

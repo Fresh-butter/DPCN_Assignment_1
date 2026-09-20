@@ -117,8 +117,10 @@ def si_spread(G: nx.Graph, seed_nodes: list, infection_prob: float = SI_INFECTIO
     step = 0
     while len(infected) < n and step < max_steps:
         newly = set()
-        for u in infected:
-            for v in G.neighbors(u):
+        # sorted(): iterating the set directly makes the order of rng draws
+        # depend on PYTHONHASHSEED, which silently breaks reproducibility.
+        for u in sorted(infected):
+            for v in sorted(G.neighbors(u)):
                 if v not in infected and rng.random() < infection_prob:
                     newly.add(v)
         infected |= newly
@@ -188,3 +190,58 @@ if __name__ == "__main__":
     si_cmp = si_seeding_comparison(G, hc_nodes, n_trials=10)
     print("\nSI spreading, high-centrality vs random seeding:")
     print(si_cmp.to_string(index=False))
+
+
+SI_HORIZON = 30                   # fixed time horizon for the coverage-curve comparison
+
+
+def si_curve_comparison(G: nx.Graph, high_centrality_nodes: list,
+                        n_trials: int = N_TRIALS, seed: int = SEED,
+                        n_seeds: int = SI_N_SEED_NODES,
+                        horizon: int = SI_HORIZON) -> pd.DataFrame:
+    """
+    Same paired comparison as si_seeding_comparison, but reports the whole
+    epidemic curve (mean +/- SD coverage at each step) instead of only the
+    time to full coverage.
+
+    Needed because on a sparse graph the SI process often never reaches
+    every node, which makes "time to full coverage" undefined; coverage at
+    a fixed horizon stays well defined on dense and sparse graphs alike.
+    """
+    nodes = list(G.nodes())
+    n = len(nodes)
+    hc_seeds = high_centrality_nodes[:n_seeds]
+    rows = []
+
+    for label, fixed_seed_set in [("high_eigenvector_centrality", hc_seeds), ("random", None)]:
+        curves = np.zeros((n_trials, horizon + 1))
+        for t in range(n_trials):
+            if fixed_seed_set is None:
+                seed_nodes = list(_rng_for_trial(seed, t).choice(nodes, size=n_seeds, replace=False))
+            else:
+                seed_nodes = fixed_seed_set
+            c = si_spread(G, seed_nodes, seed=seed, trial=t, max_steps=horizon)["curve"]
+            c = np.array(c, dtype=float) / n
+            # the walk stops early once no new node is infected; hold the final value
+            curves[t] = np.pad(c, (0, horizon + 1 - len(c)), mode="edge")[: horizon + 1]
+        for step in range(horizon + 1):
+            rows.append({
+                "seeding": label,
+                "step": step,
+                "mean_coverage": float(curves[:, step].mean()),
+                "sd_coverage": float(curves[:, step].std()),
+            })
+    return pd.DataFrame(rows)
+
+
+def seed_set_dispersion(G: nx.Graph, seed_nodes: list) -> float:
+    """
+    Mean shortest-path distance between the chosen seed nodes. A low value
+    means the seeds sit on top of each other and largely duplicate each
+    other's reach, which is the usual reason centrality-based seeding
+    underperforms random seeding.
+    """
+    pairs = [(u, v) for i, u in enumerate(seed_nodes) for v in seed_nodes[i + 1:]]
+    d = [nx.shortest_path_length(G, u, v) for u, v in pairs
+         if nx.has_path(G, u, v)]
+    return float(np.mean(d)) if d else float("nan")

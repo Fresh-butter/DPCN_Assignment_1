@@ -1,112 +1,61 @@
-"""Load and clean the raw survey CSV for the statement (item) network.
+"""
+load.py -- member_b_statement_net
 
-I build a network whose NODES ARE THE 60 STATEMENTS, not the
-respondents. We still need respondent rows to compute cross-respondent
-correlation between statements, so cleaning happens at the respondent
-level exactly as agreed in the shared conventions, and the
-raw CSV is read fresh here rather than from data/clean/, since that
-folder's script drops any row with a single missing answer (85 rows)
-instead of the agreed >30-missing rule (87 rows).
+A thin wrapper over the shared data contract. All cleaning, encoding and
+z-scoring logic lives in common/contract.py; this module only adapts it to
+the one convention that is genuinely specific to the statement network.
+
+That convention is the row index. The nodes of this network are the 60
+STATEMENTS, not the respondents -- respondent rows exist here only as the
+sample over which two statements are correlated. So respondent identity is
+never used, and this module returns a positional index rather than the
+respondent_id index that members A and C need for their node labels. The
+matrix values are identical either way; only the labels differ.
+
+What is member-specific and deliberately NOT shared: pairwise-complete
+Pearson correlation with min_periods=10 (a modelling choice about leftover
+NaNs, not cleaning), which lives in build.py.
 """
 
-from pathlib import Path
-
-import numpy as np
 import pandas as pd
 
-# --- shared conventions ---
-LIKERT = {
-    "Strongly Disagree": 1,
-    "Disagree": 2,
-    "Neutral": 3,
-    "Agree": 4,
-    "Strongly Agree": 5,
-}
-MISSING = {"No Comments", ""}  # -> NaN
-DROP_ROWS_MISSING_MORE_THAN = 30  # leaves 87 respondents
-SEED = 42
-
-# --- paths ---
-RAW_PATH = Path(__file__).resolve().parents[2] / "data" / "raw" / "Survey_Results_UC.csv"
-
-# --- statement blocks ---
-BLOCK_NAMES = {"T": "Technology", "E": "Education", "S": "Society/Ethics", "V": "Environment"}
-
-# Items flagged as worth checking for reverse/contrarian phrasing
-# before interpreting correlation signs. We do NOT flip them. I keep
-# sign information (that is the point of a signed network), so a statement
-# phrased against its block's grain should simply show up with negative
-# edges to the rest of its block.
-FLAGGED_ITEMS = ["E02", "T10"]
+from common.contract import (  # noqa: F401  (re-exported for this member's modules)
+    LIKERT,
+    MAX_MISSING,
+    N_ITEMS,
+    N_RESPONDENTS,
+    SEED,
+    item_block,
+    item_blocks,
+    item_wording,
+    zscore_items,
+    zscore_items_mean_imputed,
+)
+from common.contract import REVERSE_CODE_FLAGGED as FLAGGED_ITEMS  # noqa: F401
+from common.contract import load_clean as _load_clean_by_id
 
 
-def _clean_column_name(raw_name: str) -> str:
-    """'T01. Artificial Intelligence will ...' -> 'T01'"""
-    return raw_name.split(".", 1)[0].strip()
+def load_clean() -> pd.DataFrame:
+    """
+    The shared 87 x 60 matrix, re-indexed 0..86.
+
+    Identical values to common.contract.load_clean(); only the row labels
+    differ. See the module docstring for why.
+    """
+    return _load_clean_by_id().reset_index(drop=True)
 
 
-def load_raw() -> pd.DataFrame:
-    """Read the raw CSV, keep the full item wording as a lookup, return coded df."""
-    df = pd.read_csv(RAW_PATH, encoding="utf-8-sig")
-    id_col = df.columns[0]
-    df = df.drop(columns=[id_col])
-    return df
-
-
-def item_wording() -> dict:
-    """Map short item code ('T01') -> full statement text, for figure/table labels."""
-    df = pd.read_csv(RAW_PATH, encoding="utf-8-sig", nrows=0)
-    wording = {}
-    for col in df.columns[1:]:
-        code = _clean_column_name(col)
-        text = col.split(".", 1)[1].strip() if "." in col else col
-        wording[code] = text
-    return wording
-
-
-def encode_likert(df: pd.DataFrame) -> pd.DataFrame:
-    """Map Likert text -> 1..5, 'No Comments'/blank -> NaN. Rename columns to item codes."""
-    coded = df.copy()
-    coded.columns = [_clean_column_name(c) for c in coded.columns]
-    coded = coded.replace(list(MISSING), np.nan)
-    coded = coded.replace(LIKERT)
-    coded = coded.apply(pd.to_numeric, errors="coerce")
-    return coded
-
-
-def drop_near_empty_rows(coded: pd.DataFrame, max_missing: int = DROP_ROWS_MISSING_MORE_THAN) -> pd.DataFrame:
-    missing_per_row = coded.isna().sum(axis=1)
-    kept = coded.loc[missing_per_row <= max_missing].reset_index(drop=True)
-    return kept
-
-
-def zscore_items(coded: pd.DataFrame) -> pd.DataFrame:
-    """Per-item (per-column) z-score, ignoring NaN. Missing stays NaN (not imputed)."""
-    return (coded - coded.mean(axis=0, skipna=True)) / coded.std(axis=0, skipna=True, ddof=0)
-
-
-def zscore_items_mean_imputed(coded: pd.DataFrame) -> pd.DataFrame:
-    """Per-item z-score with missing values mean-imputed (-> 0), for the sensitivity check."""
-    z = zscore_items(coded)
-    return z.fillna(0.0)
-
-
-def load_clean_responses() -> pd.DataFrame:
-    """Full pipeline: raw -> coded -> drop near-empty rows -> 87 x 60 Likert matrix (1-5, NaN)."""
-    raw = load_raw()
-    coded = encode_likert(raw)
-    clean = drop_near_empty_rows(coded)
-    return clean
-
-
-def item_blocks(columns) -> pd.Series:
-    """Item code -> block letter (T/E/S/V), for community-vs-block comparison (NMI)."""
-    return pd.Series({c: c[0] for c in columns})
+# Name this member's modules used before the contract was factored out.
+load_clean_responses = load_clean
 
 
 if __name__ == "__main__":
-    clean = load_clean_responses()
-    print(f"Respondents kept: {clean.shape[0]} (expected 87)")
-    print(f"Items: {clean.shape[1]} (expected 60)")
-    print("Missing per item (top 5):")
+    clean = load_clean()
+    print(f"member B -- clean matrix: {clean.shape[0]} x {clean.shape[1]} "
+          f"(expect {N_RESPONDENTS} x {N_ITEMS})")
+    assert clean.shape == (N_RESPONDENTS, N_ITEMS)
+    assert list(clean.index) == list(range(N_RESPONDENTS)), "expected a positional index"
+
+    print("missing per item (top 5):")
     print(clean.isna().sum().sort_values(ascending=False).head())
+    print(f"flagged, not flipped: {list(FLAGGED_ITEMS)}")
