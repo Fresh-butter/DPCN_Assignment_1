@@ -10,7 +10,7 @@ Full pipeline in `notebook.ipynb`; figures in `figures/`, tables in `tables/`.
 
 **Why deviation rather than agreement**: ~80% of all answers are Agree or
 Strongly Agree, so raw responses are nearly identical between students.
-Deviation from the per-item consensus is where the interesting information lives.
+Deviation from the per-item consensus is where the interesting stuff lives.
 Members A and B both z-score to *remove* that ceiling; this network makes
 the residual the thing we actually study.
 
@@ -27,7 +27,7 @@ the residual the thing we actually study.
   | **1.0** | **1200** | **13.8** | **0** |
   | 1.5 | 442 | 5.1 | 4 |
 
-  A 6× swing in edge count across the range. Cutoff 1.0 is our main
+  A 6× swing in edge count. Cutoff 1.0 is our main
   operating point: sparse enough to mean something, dense enough that every
   student still participates.
 
@@ -40,35 +40,29 @@ the residual the thing we actually study.
 - **Most deviated-on statements**: **T13 (60 of 87 students)**, V03 (50),
   V10 (49), T15 (48), S13 (48), E05 (47), S10 (46), T03 (46).
 - **T13 is the single biggest flashpoint in the survey** — 69% of the class
-  answered it against the consensus. Note this is 60 out of 87 possible, not a
-  saturated node.
-- **The lowest-mean items are not the highest-deviation items.** E03 and E02,
-  which member B finds at the centre of the class's disagreement structure,
+  answered it against the consensus. Note this is 60 out of 87 possible.
+- **Low mean ≠ high deviation.** E03 and E02,
+  which member B finds at the centre of the disagreement structure,
   rank only 11th and below here. Low mean means "the class agrees it's false";
-  high deviation degree means "the class can't settle." Those are different
-  things, and the items the class disagrees about most by mean are not the ones
+  high deviation degree means "the class can't settle." Different
+  things, and the items with the most extreme means aren't the ones
   the class is most split on.
-- **Block mix of the top 8**: T 3, V 2, S 2, E 1. Society and Environment are
-  over-represented relative to Education — the same S/V prominence member A
-  finds driving the two-bloc split.
-- `fig02_bipartite_layout.png` shows the whole graph with students on the left
-  and statements on the right, coloured by block and sized by degree — helpful
-  for seeing that deviation edges are spread across the class
-  rather than concentrated on a few students.
+- **Block mix of the top 8**: T 3, V 2, S 2, E 1. S and V are
+  over-represented — same prominence member A finds driving the two-bloc split.
+- `fig02_bipartite_layout.png` shows the full graph, students on the left,
+  statements on the right, coloured by block, sized by degree.
 
-## Nestedness — and why the obvious reading of it is wrong
+## Nestedness — and why the obvious reading doesn't hold
 
 - **NODF = 41.8** (rows 44.5, cols 39.1) on a 0–100 scale. Sorted by degree,
   the incidence matrix does look nested: the items a moderate deviant breaks on
   are largely a subset of those a heavy deviant breaks on.
-- The tempting conclusion is a **hierarchy of dissent** — that students work
-  down a shared ordering of how contentious each statement is, rather than each
-  picking a random set. **That conclusion doesn't hold up against a null.**
+- The tempting conclusion is a hierarchy of dissent — that students work
+  down a shared ordering of how contentious each statement is. **But that
+  doesn't hold up against a null.**
 - NODF goes up automatically with heterogeneous degrees, and degrees here are
-  very heterogeneous by construction (students deviate on between 3 and 35
-  items). Against a curveball null that fixes *both* degree sequences and
-  destroys everything else — 30 replicates, `nodf_null()` in
-  `src/bipartite_metrics.py`:
+  very heterogeneous (students deviate on 3 to 35 items). Against a curveball
+  null that fixes *both* degree sequences (30 replicates):
 
   | | NODF |
   |---|---|
@@ -77,23 +71,21 @@ the residual the thing we actually study.
   | z | +3.08 |
   | Excess over null | **+0.79 points of 100** |
 
-- So the nesting is real but almost entirely explained by the degree
+- The nesting is real but almost entirely explained by the degree
   sequence. Technically above chance; practically 0.8 points on a 100-point
-  scale. **There is no hierarchy of dissent beyond "some students deviate more
+  scale. **No real hierarchy of dissent beyond "some students deviate more
   often than others."** (`fig03_nestedness_matrix.png`,
   `tables/table04_nodf.csv`)
-- This is the same verdict the other two measurements reach independently: the
-  co-dissent projection clusters *worse* than its degree-preserving null
-  (z = −6.14), and MFPT spans 27× but correlates with deviation degree at
-  ρ = −0.971. Three different structural questions, one answer — **once you
+- Same verdict from two other angles: co-dissent modularity is *below*
+  its null (z = −6.14), and MFPT correlates with deviation degree at
+  ρ = −0.971. Three different structural questions, same answer: **once you
   know how often a student deviates, you know basically everything about where
   they sit in this network.**
 
 ## Core-periphery
 
-- 17 students (top 20% by degree) form a core of habitual dissenters; the
+- 17 students (top 20% by degree) are habitual dissenters; the
   other 70 are more selective about when they disagree.
-- Most of the class picks its battles; about a fifth of it is broadly out of step.
 
 ## One-mode projections
 
@@ -106,9 +98,9 @@ the residual the thing we actually study.
 
 ### Is that "weak structure" or *no* structure?
 
-Louvain returns a partition for any graph, so a small Q on its own tells us
-nothing. We compared both projections against a **degree-preserving
-(configuration-model) null**, 30 rewirings each (`tables/table05_modularity_null.csv`):
+Louvain returns a partition for any graph, so a small Q doesn't tell us
+much on its own. Compared against a degree-preserving
+(configuration-model) null, 30 rewirings each (`tables/table05_modularity_null.csv`):
 
 | Projection | Q observed | Q null | z |
 |---|---|---|---|
@@ -116,99 +108,86 @@ nothing. We compared both projections against a **degree-preserving
 | Item co-deviation | 0.0761 | 0.0671 ± 0.0041 | +2.21 |
 
 - **The co-dissent network isn't weakly clustered — it's *less* clustered
-  than chance**, by 6.1 SD. A random graph with exactly the same degree
+  than chance**, by 6.1 SD. A random graph with the same degree
   sequence partitions *better* than the real one.
-- The item co-deviation projection is borderline (+2.2 SD): basically
-  indistinguishable from a structureless graph, and not something we'd want
-  to build an argument on.
-- Member A's agreement network on the *same 87 students* scores **Q = 0.432 vs
-  a configuration null of 0.178 ± 0.007, z = +35.5**.
+- The item projection is borderline (+2.2 SD): basically like a
+  structureless graph.
+- Compare with member A's agreement network on the same 87 students:
+  Q = 0.432 vs a configuration null of 0.178 ± 0.007, z = +35.5.
 
-- So: consensus has structure; dissent does not. Agreement is 35 SD above chance;
-  co-dissent is 6 SD *below* it. Students who agree form two clear, highly
-  assortative blocs. Students who deviate form no groups at all — less than
-  random, actually. There's no "contrarian clique", and disagreeing with the
-  class on one issue tells you nothing about what else you disagree on.
+- So: consensus has structure; dissent does not. Agreement is 35 SD above
+  chance; co-dissent is 6 SD *below* it. Students who agree form two clear
+  blocs. Students who deviate form no groups at all — actually less than
+  random. There's no "contrarian clique."
 
 ## Dynamics: random walk and mean first-passage time
 
 A walker hops student → item → student, so it can only travel between two
-students through an issue they both deviate on. MFPT(s → t) is therefore an
+students through an issue they both deviate on. MFPT(s → t) is an
 **issue-mediated distance**. Computed exactly from the fundamental matrix
 `Z = (I − T + 1π^T)^{-1}`, `H_ij = (Z_jj − Z_ij)/π_j`, with the true
 stationary distribution `π_j ∝ strength_j`.
 
 > **Correction.** An earlier version used a *uniform* π, which only works
 > on a regular graph. Strengths here span ~30×, and the uniform version
-> collapsed the MFPT range from 27× to 1.2×, producing the wrong conclusion
-> that "the network is homogeneous, no student is special". All numbers below
-> are from the corrected computation.
+> collapsed the MFPT range from 27× to 1.2×, giving the wrong conclusion
+> that "the network is homogeneous." All numbers below are from the
+> corrected computation.
 
 - **All 7482 ordered student pairs are connected.** Mean MFPT **240.6** steps,
   median 210.7, min **39.8**, max **1063.5** — a **27× spread**.
-- **That spread is almost entirely degree.** Spearman ρ between a student's
-  mean incoming MFPT and their deviation degree is **−0.971**. The walker
-  reaches the loud deviants (120: 42 steps, 119: 63) almost immediately and
-  takes 25× longer to find the quiet ones (99: 1048 steps on 3 deviations;
-  67: 691 on 5).
-- **Dividing strength out leaves almost nothing.** The relative MFPT
-  `R = H·strength/vol` spans only **1.005–1.118 (1.11×)**, hugging the
+- **That spread is almost entirely degree.** Spearman ρ between incoming MFPT
+  and deviation degree is **−0.971**. The walker reaches the loud deviants
+  (120: 42 steps, 119: 63) almost immediately and takes 25× longer to find the
+  quiet ones (99: 1048 steps on 3 deviations; 67: 691 on 5).
+- **Dividing strength out leaves almost nothing.** Relative MFPT
+  `R = H·strength/vol` spans only **1.005–1.118 (1.11×)**, right around the
   degree-only expectation of 1.0. (`fig04_mfpt_structure.png`)
-- **So the deviation network behaves like a configuration model.** Once you
+- **The deviation network behaves like a configuration model.** Once you
   know how often each student deviates, you know basically everything about
-  how the dynamics reach them. There are no hidden pockets of dissent, no
-  bottlenecks, no gatekeepers. The interesting fact is not that MFPT is flat
-  (it isn't — it spans 27×), it's that **all of the variation is explained by
-  how much each student deviates**.
+  how the dynamics reach them. No hidden pockets of dissent, no bottlenecks.
 
 ## Robustness: are the flashpoint issues load-bearing?
 
 Remove the 8 highest-deviation statements one at a time
 (`tables/table10_robustness_mfpt.csv`, `fig05_mfpt_robustness.png`).
 
-- **100% of student pairs stay connected** throughout — even with T13, V03,
-  V10, T15, S13, E05, S10 and T03 all deleted.
+- **100% of student pairs stay connected** throughout — even after deleting
+  T13, V03, V10, T15, S13, E05, S10 and T03.
 - Raw mean MFPT rises 240.6 → 291.2 (**+21.0%**), but most of that is
-  mechanical: deleting edges shrinks the graph, and MFPT scales with graph size.
+  mechanical: fewer edges → larger MFPT.
 - **Relative MFPT rises only +1.4%.** After correcting for graph size, removing
-  the eight biggest flashpoints in the survey barely changes the structure of
-  dissent at all.
-- No single issue — not T13, not E03 — is the bridge holding dissent together.
-  Deviation is genuinely spread out, which is the dynamical version of the
-  near-zero modularity above.
+  the eight biggest flashpoints barely changes anything.
+- No single issue is the bridge holding dissent together. Deviation is
+  genuinely spread out.
 
 ## Cross-check: is deviating together the same as agreeing?
 
-Member A's agreement similarity (pairwise-complete cosine of z-scored vectors)
-recomputed here from our own `load.py`, correlated against the symmetrised
-MFPT over all 3741 comparable pairs (`tables/table11_crosscheck_vs_agreement.csv`,
+Member A's agreement similarity recomputed here from our own `load.py`,
+correlated against symmetrised MFPT over all 3741 comparable pairs
+(`tables/table11_crosscheck_vs_agreement.csv`,
 `fig06_crosscheck_agreement.png`).
 
 - **Pearson r = +0.036, Spearman ρ = +0.026.** Basically zero.
-- **Agreement distance and issue-mediated deviation distance are unrelated
-  measurements.** Knowing that two students think alike overall tells you
-  nothing about whether they break from the class on the same questions.
-- This is the clearest argument for why three different network
-  constructions on one dataset were worth building: they're not three views
-  of the same structure, they measure genuinely different things.
+- **Agreement distance and issue-mediated deviation distance are unrelated.**
+  Knowing two students think alike tells you nothing about whether they break
+  from the class on the same questions.
 
 ## Cross-member connections
 
-1. **Consensus is structured, dissent is not** — A's Q = 0.432 (**+35.5 SD**
-   above a configuration null) vs C's Q = 0.0368 (**−6.14 SD**, below its
-   own null), on the same 87 students. Backed by r = +0.036 between the two
-   distance measures. Both halves of the contrast are tested against a
-   null rather than just asserted from the raw Q values.
-2. **S/V prominence** confirmed independently: S and V are over-represented
-   among the highest-deviation items, and they drive A's bloc split and top
-   B's leverage ranking.
+1. **Consensus is structured, dissent is not** — A's Q = 0.432 (+35.5 SD)
+   vs C's Q = 0.0368 (−6.14 SD), on the same 87 students. Backed by
+   r = +0.036 between the two distance measures.
+2. **S/V prominence** shows up independently in all three networks: S and V
+   over-represented among highest-deviation items here, drive A's bloc split,
+   and top B's leverage ranking.
 3. **T13 vs E03** — C's top flashpoint (T13) is not B's disagreement axis
-   (E03), and B's axis is not near the top here. Raw spread and patterned
-   anti-correlation are different things, and the three networks don't
-   agree on everything.
-4. **Bridges vs deviants** — A's student 72 is the structural bridge between
-   agreement blocs; C's top deviants (120, 119) are completely different people.
-   Being between the blocs is not the same as being outside the consensus.
+   (E03), and B's axis isn't near the top here. Raw spread and patterned
+   anti-correlation are different things.
+4. **Bridges vs deviants** — A's student 72 (structural bridge between
+   agreement blocs) and C's top deviants (120, 119) are completely different
+   people. Being between the blocs is not the same as being outside the
+   consensus.
 
 ## Summary table
 
@@ -234,15 +213,6 @@ MFPT over all 3741 comparable pairs (`tables/table11_crosscheck_vs_agreement.csv
 
 ## Reproducibility
 
-`notebook.ipynb` is byte-for-byte reproducible with `SEED = 42`: two consecutive
-executions write identical CSVs. One non-determinism bug had to be fixed first.
-`student_projection` and `item_projection` passed a **`set`** of node names to
-`nx.bipartite.weighted_projected_graph`; set iteration order depends on per-process hash
-randomisation, so the projection's node insertion order — and therefore Louvain on it —
-changed between runs even with `random_state` fixed. Across three runs before the fix the
-result drifted between 3 communities and 2, with Q moving over 0.037–0.039. Both functions
-now pass a sorted list, giving a stable 2 communities [44, 43] at Q = 0.0368.
-
-That instability was itself informative — a partition that reshuffles every run is a
-partition that probably isn't there — but it's only properly reportable once measured
-against a null rather than noticed by accident.
+`notebook.ipynb` is reproducible with `SEED = 42`: two consecutive runs
+produce identical CSVs. Projections use sorted node lists for
+deterministic output; stable at 2 communities [44, 43] at Q = 0.0368.
